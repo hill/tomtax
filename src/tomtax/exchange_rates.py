@@ -9,9 +9,6 @@ RBA_EXCHANGE_RATES_CSV_URL = "https://www.rba.gov.au/statistics/tables/csv/f11-d
 
 
 def prepare_exchange_rates_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-    # Skip the first row
-    df = df.iloc[1:]
-
     # Set the 'Title' column as the index
     df.set_index("Title", inplace=True)
 
@@ -28,12 +25,12 @@ def prepare_exchange_rates_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def fetch_exchange_rates() -> pd.DataFrame:
-    df = pd.read_csv(RBA_EXCHANGE_RATES_CSV_URL)
+    df = pd.read_csv(RBA_EXCHANGE_RATES_CSV_URL, skiprows=1)
     return prepare_exchange_rates_dataframe(df)
 
 
 def load_and_prepare_exchange_rates(csv_file_path: Path) -> pd.DataFrame:
-    df = pd.read_csv(csv_file_path)
+    df = pd.read_csv(csv_file_path, skiprows=1)
     return prepare_exchange_rates_dataframe(df)
 
 
@@ -62,4 +59,4 @@ def get_exchange_rate(
     return rate, closest_date
 
 
-print(fetch_exchange_rates())
+load_and_prepare_exchange_rates(csv_file_path)

@@ -1,30 +1,48 @@
-import argparse
+import click
 
 from tomtax.exchange_rates import get_exchange_rate
 
-parser = argparse.ArgumentParser(description="tomtax: don't use this lmao")
-subparsers = parser.add_subparsers(dest="command")
 
-exchange_rates_parser = subparsers.add_parser("ex", help="Get exchange rates")
-exchange_rates_parser.add_argument(
+@click.group()
+def cli():
+    """tomtax: don't use this lmao"""
+    pass
+
+
+@click.command()
+@click.option(
     "-c",
     "--currency",
     type=str,
     help="The currency to get the exchange rate for",
     required=True,
 )
-exchange_rates_parser.add_argument(
+@click.option(
     "-d",
     "--date",
     type=str,
     help="The date to get the exchange rate for",
     required=True,
 )
+@click.option(
+    "--live",
+    is_flag=True,
+    help="Fetch the latest exchange rates from the RBA website",
+    default=False,
+)
+def ex(currency, date, live):
+    """Get exchange rates"""
+    rate, date = get_exchange_rate(currency, date, live)
+    print(f"$1AUD = ${rate}{currency.upper()} on {date}")
 
-args = parser.parse_args()
 
-if args.command == "ex":
-    [rate, date] = get_exchange_rate(args.currency, args.date)
-    print(f"$1AUD = ${rate}{args.currency.upper()} on {date}")
-else:
-    parser.print_help()
+@click.group()
+def tx():
+    """Manage transactions"""
+
+
+cli.add_command(ex)
+cli.add_command(tx)
+
+if __name__ == "__main__":
+    cli()
