@@ -1,0 +1,16 @@
+[project]
+name = "tomtax"
+version = "0.1.0"
+description = "Tom's CGT calculator"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "ruff>=0.6.2",
+    "pytest>=8.3.2",
+    "pandas>=2.2.2",
+    "rich>=13.7.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
