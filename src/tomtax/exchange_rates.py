@@ -44,7 +44,7 @@ def get_exchange_rate(
         df = load_and_prepare_exchange_rates(csv_file_path)
 
     # Ensure the date is in datetime format
-    date = pd.to_datetime(date, dayfirst=True)
+    date = pd.to_datetime(date)
 
     # Check if the currency exists in the DataFrame
     if f"A$1={currency.upper()}" not in df.columns:
