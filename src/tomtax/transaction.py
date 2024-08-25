@@ -1,10 +1,17 @@
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
-from typing import Literal
+from typing import Dict, List, Literal
 
 from rich.console import Console
 from rich.table import Table
+
+
+@dataclass
+class StockSplit:
+    date: date
+    ratio: Decimal  # e.g., 4 for a 4:1 split
 
 
 @dataclass
@@ -17,8 +24,8 @@ class Transaction:
     price: Decimal
     transaction_type: Literal["BUY", "SELL"]
     currency: str
-    transaction_fee: Decimal
-    transaction_method: str
+    transaction_fee: Decimal = Decimal("0")
+    transaction_method: str | None = None
     aud_price: Decimal = Decimal("0")
 
     def __post_init__(self):
@@ -36,22 +43,17 @@ class Transaction:
     def aud_amount(self) -> Decimal:
         return self.quantity * self.aud_price
 
-    def partial(self, new_quantity: Decimal) -> "Transaction":
-        """Create a partial transaction with the given quantity."""
-        fraction = new_quantity / self.quantity
-        return Transaction(
-            trade_id=self.trade_id,
-            trade_date=self.trade_date,
-            instrument_code=self.instrument_code,
-            market_code=self.market_code,
-            quantity=new_quantity,
-            price=self.price,
-            transaction_type=self.transaction_type,
-            currency=self.currency,
-            transaction_fee=self.transaction_fee * fraction,
-            transaction_method=self.transaction_method,
-            aud_price=self.aud_price,
+    def split(self, ratio: Decimal) -> "Transaction":
+        """Split the transaction by the given ratio."""
+        data = deepcopy(self.__dict__)
+        data.update(
+            {
+                "quantity": self.quantity * ratio,
+                "price": self.price / ratio,
+                "aud_price": self.aud_price / ratio,
+            }
         )
+        return Transaction(**data)
 
 
 def render_transactions_table(transactions: list[Transaction]):

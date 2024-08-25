@@ -1,5 +1,5 @@
 import csv
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 
 import click
@@ -8,7 +8,7 @@ from rich.table import Table
 
 from tomtax.capital_gains import generate_capital_gains_report
 from tomtax.exchange_rates import get_exchange_rate
-from tomtax.transaction import Transaction, render_transactions_table
+from tomtax.transaction import StockSplit, Transaction, render_transactions_table
 
 
 @click.group()
@@ -104,17 +104,19 @@ def report(file: str):
     transactions = read_csv(file)
     convert_to_aud(transactions)
 
-    capital_gains = generate_capital_gains_report(transactions)
+    stock_splits = {"NVDA": [StockSplit(date=date(2024, 6, 7), ratio=Decimal("10"))]}
+
+    capital_gains = generate_capital_gains_report(transactions, stock_splits)
 
     console = Console()
     table = Table(title="Capital Gains Report")
 
     table.add_column("Instrument", style="cyan")
-    table.add_column("Buy Date", style="magenta")
-    table.add_column("Sell Date", style="green")
+    table.add_column("Buy Date", style="green")
+    table.add_column("Sell Date", style="red")
     table.add_column("Quantity", style="blue")
     table.add_column("Capital Gain/Loss", style="yellow")
-    table.add_column("Partial Buy", style="red")
+    table.add_column("Partial Buy", style="magenta")
 
     total_capital_gain = Decimal("0")
     for (
